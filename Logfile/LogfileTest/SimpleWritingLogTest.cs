@@ -14,5 +14,12 @@ namespace LogfileTest
             writeLog.Log("Error to run application");
             Assert.AreNotEqual(StreamWriter.Null, writeLog.Logfile);
         }
+        public void TestWhenIsNull()
+        {
+            var writeLog = new WriteInDiskLogfile();
+            string varNull = null;
+            writeLog.Log(varNull);
+            Assert.AreNotEqual(StreamWriter.Null, writeLog.Logfile);
+        }
     }
 }

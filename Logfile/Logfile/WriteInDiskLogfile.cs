@@ -8,43 +8,48 @@ namespace Logfile
     public class WriteInDiskLogfile : IAdvancedLog, ISimpleLog
     {
         public StreamWriter Logfile { get; set; }
+        private string projectDirectory {
+            get
+            {
+                return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            }
+        }
+        private string FileDir {
+            get
+            {
+                return string.Format("{0}\\log.txt", this.projectDirectory);
+            }
+        }
         public void Log(string logMessage)
         {
-            var projectDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var fileDir = string.Format("{0}\\log.txt", projectDirectory);
-            using (Logfile = !File.Exists("log.txt") ? new StreamWriter(fileDir) : File.AppendText("log.txt"))
+            using (Logfile = !File.Exists("log.txt") ? new StreamWriter(this.FileDir) : File.AppendText("log.txt"))
             {
-                Logfile.Write("\r\nLog Entry");
-                Logfile.WriteLine("Data Time:" + DateTime.Now);
-                Logfile.WriteLine("  :");
-                Logfile.WriteLine("  :{0}", logMessage);
+                Logfile.WriteLine("\r\n>>Log Entry");
+                Logfile.WriteLine("Data Time: {0}", DateTime.Now);
+                Logfile.WriteLine("Message: {0}", logMessage);
                 Logfile.WriteLine("-------------------------------");
             }
         }
 
         public void Log(Loginfo _logInfo)
         {
-            try
+            if (_logInfo == null)
             {
-                if (!File.Exists("log.txt"))
-                    Logfile = new StreamWriter("log.txt");
-                else
-                    Logfile = File.AppendText("log.txt");
-
-                Logfile.Write("\r\nLog Entry");
-                Logfile.WriteLine("Data Time:" + DateTime.Now);
-                Logfile.WriteLine("Exception Name:" + _logInfo.ExceptionName);
-                Logfile.WriteLine("Event Name:" + _logInfo.EventName);
-                Logfile.WriteLine("Control Name:" + _logInfo.ControlName);
-                Logfile.WriteLine("Error Line No.:" + _logInfo.ErrorLineNum);
-                Logfile.WriteLine("Form Name:" + _logInfo.MainName);
-                Logfile.WriteLine("-------------------------------");
-                Logfile.Close();
+                Loginfo info = new Loginfo();
+                Log(info);
+                return;
             }
-            catch(Exception ex)
+
+            using (Logfile = !File.Exists("log.txt") ? new StreamWriter(this.FileDir) : File.AppendText("log.txt"))
             {
-                Logfile.Dispose();
-                this.Log(ex.Message);
+                Logfile.WriteLine("\r\n>>Log Entry");
+                Logfile.WriteLine("Data Time: {0}", DateTime.Now);
+                Logfile.WriteLine("Exception Name: {0}", _logInfo.ExceptionName);
+                Logfile.WriteLine("Event Name: {0}", _logInfo.EventName);
+                Logfile.WriteLine("Control Name: {0}", _logInfo.ControlName);
+                Logfile.WriteLine("Error Line No.: {0}", _logInfo.ErrorLineNum);
+                Logfile.WriteLine("Form Name: {0}", _logInfo.MainName);
+                Logfile.WriteLine("-------------------------------");
             }
         }
     }
